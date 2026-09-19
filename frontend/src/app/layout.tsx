@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
-import theme from "@/theme/theme";
-import "@/app/globals.css";
+import ThemeProviderWrapper from "@/components/ThemeProviderWrapper";
 
 export const metadata: Metadata = {
   title: "Workflow Engine",
@@ -17,10 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+        <ThemeProviderWrapper>
           {children}
-        </ThemeProvider>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );

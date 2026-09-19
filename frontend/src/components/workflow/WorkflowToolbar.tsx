@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useWorkflowStore } from "@/store/workflowStore";
-import { Link } from "next/link";
+import Link from "next/link";
 
 const WorkflowToolbar = () => {
   const {
