@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "version": 1,
+      "config": {}
+    },
+    {
+      "id": "http",
+      "type": "utility.http_request",
+      "version": 1,
+      "config": {
+        "method": "GET",
+        "url": "https://httpbin.org/get",
+        "params": {
+          "name": "{{trigger.name}}"
+        }
+      }
+    },
+    {
+      "id": "set",
+      "type": "transform.set",
+      "version": 1,
+      "config": {
+        "values": {
+          "status": "{{http.status_code}}",
+          "url": "{{http.body.url}}"
+        }
+      }
+    },
+    {
+      "id": "log",
+      "type": "utility.log",
+      "version": 1,
+      "config": {
+        "message": "Status: {{set.status}}, URL: {{set.url}}"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "trigger",
+      "target": "http"
+    },
+    {
+      "source": "http",
+      "target": "set"
+    },
+    {
+      "source": "set",
+      "target": "log"
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+# Workflow Engine - Local MVP
+
+A local workflow automation engine prototype built with Python, FastAPI, and SQLite.
+
+## Features
+
+- Visual workflow definition (JSON-based)
+- Node-based execution engine
+- Variable/expression resolution (`{{variable}}`)
+- Conditional branching (IF node)
+- HTTP Request node
+- Execution history persistence
+- RESTful API
+
+## Quick Start (Windows)
+
+### Prerequisites
+
+- Python 3.12+
+
+### Setup
+
+```powershell
+# Clone and navigate
+cd workflow-engine
+
+# Create virtual environment
+python -m venv .venv
+
+# Activate
+.venv\Scripts\activate
+
+# Install dependencies
+pip install -e .
+
+# Run the API server
+uvicorn app.main:app --reload
+```
+
+Or run directly:
+
+```powershell
+python -m app
+```
+
+The API will be available at:
+- **API**: http://127.0.0.1:8000
+- **Docs**: http://127.0.0.1:8000/docs
+- **Health**: http://127.0.0.1:8000/health
+
+## API Endpoints
+
+### Health
+- `GET /health` - Basic health check
+- `GET /health/db` - Database health check
+
+### Workflows
+- `POST /api/v1/workflows` - Create workflow
+- `GET /api/v1/workflows` - List workflows
+- `GET /api/v1/workflows/{id}` - Get workflow
+- `PUT /api/v1/workflows/{id}` - Update workflow
+- `DELETE /api/v1/workflows/{id}` - Delete workflow
+- `POST /api/v1/workflows/{id}/validate` - Validate workflow
+- `POST /api/v1/workflows/{id}/versions` - Create workflow version
+- `GET /api/v1/workflows/{id}/versions` - List versions
+- `GET /api/v1/workflows/{id}/versions/active` - Get active version
+- `PUT /api/v1/workflows/{id}/versions/{version_id}/activate` - Activate version
+
+### Executions
+- `POST /api/v1/executions/workflows/{workflow_id}/execute` - Execute workflow
+- `GET /api/v1/executions` - List executions
+- `GET /api/v1/executions/{id}` - Get execution with node details
+
+### Nodes
+- `GET /api/v1/nodes` - List available node types
+
+## Workflow Definition Format
+
+```json
+{
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "version": 1,
+      "config": {}
+    },
+    {
+      "id": "set",
+      "type": "transform.set",
+      "version": 1,
+      "config": {
+        "values": {
+          "name": "Mohan",
+          "message": "Hello World"
+        }
+      }
+    },
+    {
+      "id": "log",
+      "type": "utility.log",
+      "version": 1,
+      "config": {
+        "message": "{{set.message}} {{set.name}}"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "trigger",
+      "target": "set"
+    },
+    {
+      "source": "set",
+      "target": "log"
+    }
+  ]
+}
+```
+
+## Built-in Nodes
+
+### Triggers
+- `trigger.manual` - Manual workflow start
+
+### Transform
+- `transform.set` - Create/set variables
+
+### Logic
+- `logic.if` - Conditional branching (equals, not_equals, contains, greater_than, less_than, exists, not_exists)
+
+### Utility
+- `utility.log` - Log to console
+- `utility.http_request` - HTTP requests (GET, POST, PUT, PATCH, DELETE)
+
+## Variable Syntax
+
+Use `{{path.to.value}}` in node configurations:
+
+- `{{trigger.name}}` - Trigger input
+- `{{set_1.message}}` - Output from node `set_1`
+- `{{node_1.customer.name}}` - Nested values
+- `{{execution.id}}` - Execution ID
+
+## Example Workflows
+
+See `examples/` directory:
+- `hello_world.json` - Basic workflow
+- `conditional.json` - IF branching
+- `http_request.json` - HTTP request
+
+## Running Tests
+
+```powershell
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app
+
+# Run specific test file
+pytest tests/unit/test_registry.py
+```
+
+## Project Structure
+
+```
+workflow-engine/
+├── app/
+│   ├── api/routes/       # API endpoints
+│   ├── core/             # Config, logging
+│   ├── db/               # Database models, session
+│   ├── schemas/          # Pydantic schemas
+│   ├── services/         # Business logic
+│   ├── repositories/     # Data access
+│   ├── workflow/         # Engine, graph, expressions
+│   └── nodes/            # Node implementations
+│       ├── base.py
+│       ├── triggers/
+│       ├── logic/
+│       ├── transform/
+│       └── utility/
+├── tests/
+├── examples/
+└── data/                 # SQLite database
+```
+
+## Architecture
+
+```
+API Routes
+    ↓
+Services (Workflow, Version, Execution)
+    ↓
+Repositories (Database access)
+    ↓
+Workflow Engine
+    ↓
+Graph Executor
+    ↓
+Node Registry
+    ↓
+Nodes (Manual, Set, Log, IF, HTTP)
+```
+
+## Adding New Nodes
+
+1. Create node in `app/nodes/<category>/<name>.py`
+2. Inherit from `BaseNode`
+3. Define `metadata` with type, version, name, description, category
+4. Implement `execute(context, input_data)` returning `NodeResult`
+5. Register in `app/nodes/__init__.py`
+
+## Future Enhancements
+
+- PostgreSQL support
+- Redis queue for async execution
+- Worker processes
+- Scheduler
+- Webhook triggers
+- Credential management
+- Multi-tenancy
+- Authentication/Authorization

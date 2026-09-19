@@ -1,0 +1,67 @@
+{
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "version": 1,
+      "config": {}
+    },
+    {
+      "id": "set",
+      "type": "transform.set",
+      "version": 1,
+      "config": {
+        "values": {
+          "name": "Mohan",
+          "age": 27
+        }
+      }
+    },
+    {
+      "id": "condition",
+      "type": "logic.if",
+      "version": 1,
+      "config": {
+        "left": "{{set.age}}",
+        "operator": "greater_than",
+        "right": 18
+      }
+    },
+    {
+      "id": "success",
+      "type": "utility.log",
+      "version": 1,
+      "config": {
+        "message": "Adult: {{set.name}}"
+      }
+    },
+    {
+      "id": "failure",
+      "type": "utility.log",
+      "version": 1,
+      "config": {
+        "message": "Not adult: {{set.name}}"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "trigger",
+      "target": "set"
+    },
+    {
+      "source": "set",
+      "target": "condition"
+    },
+    {
+      "source": "condition",
+      "source_handle": "true",
+      "target": "success"
+    },
+    {
+      "source": "condition",
+      "source_handle": "false",
+      "target": "failure"
+    }
+  ]
+}

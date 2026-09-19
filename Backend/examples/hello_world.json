@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "version": 1,
+      "config": {}
+    },
+    {
+      "id": "set",
+      "type": "transform.set",
+      "version": 1,
+      "config": {
+        "values": {
+          "name": "Mohan",
+          "message": "Hello World"
+        }
+      }
+    },
+    {
+      "id": "log",
+      "type": "utility.log",
+      "version": 1,
+      "config": {
+        "message": "{{set.message}} {{set.name}}"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "trigger",
+      "target": "set"
+    },
+    {
+      "source": "set",
+      "target": "log"
+    }
+  ]
+}
